@@ -1,5 +1,8 @@
-require "wlt/version"
+require 'wlt/version'
+require 'wlt/creds_manager'
+require 'wlt/translator'
 
-module Wlt
-  # Your code goes here...
-end
+module Wlt; end
+
+class Error < RuntimeError; end
+class CredsManagerError < Error; end

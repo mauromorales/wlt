@@ -1,8 +1,10 @@
-# Wlt
+# Watson Language Translator gem
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/wlt`. To experiment with that code, run `bin/console` for an interactive prompt.
+Wlt is a command line application and API to translate text using the Watson
+Language Translator service.
 
-TODO: Delete this and the text above, and describe your gem
+Before you can use Wlt you need to create a set of credentials see:
+https://console.bluemix.net/docs/services/watson/getting-started-credentials.html#getting-credentials-manually
 
 ## Installation
 
@@ -22,17 +24,43 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+You can do translations via the CLI or using the Wlt API
 
-## Development
+### CLI
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Translate a file:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+    $ wlt --username=<your-watson-username> --password=<your-watson-password> --file=path/to/file
+
+Save your credentials locally in order not to pass them every time you want to do a translation:
+
+    $ wlt --username=<your-watson-username> --password=<your-watson-password> --save-credentials
+
+Choose different source and target languages:
+
+    $ wlt --source=es --target=en --file=path/to/file
+
+Use process substitution to pass your text directly in the command line:
+
+    $ wlt --file=<(echo "Hello world!")
+
+Print out the help message
+
+    $ wlt --help
+
+### API
+
+```ruby
+require 'wlt'
+
+creds_manager = Wlt::CredsManager.new('<your-watson-username>', '<your-watson-password>')
+translate_args = { text: 'Hello world!', source: 'en', target: 'es' }
+result = Wlt::Translator.new(creds_manager).translate(translate_args)
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/wlt.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mauromorales/wlt.
 
 ## License
 

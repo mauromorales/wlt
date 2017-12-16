@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'wlt'
+
+
+options = {}
+translate_args = {}
+
+parser = OptionParser.new do |parser|
+  parser.on("-u", "--username USERNAME", "The Watson username") do |v|
+    options[:username] = v
+  end
+
+  parser.on("-p", "--password PASSWORD", "The Watson password") do |v|
+    options[:password] = v
+  end
+
+  parser.on("--save-credentials", "Saves the given credentials in $HOME/.wlt/credentials") do
+    options[:save_credentials] = true
+  end
+
+  parser.on("-s", "--source LANG", "Source language (default: en)") do |v|
+    translate_args[:source] = v
+  end
+
+  parser.on("-t", "--target LANG", "Target language (default: es)") do |v|
+    translate_args[:target] = v
+  end
+
+  parser.on("-f", "--file PATH", "File containing text to be translated") do |v|
+    options[:file_path] = v
+  end
+
+  parser.on("-h", "--help", "Prints this message") do |v|
+    puts parser
+    exit
+  end
+end
+
+parser.parse!
+
+creds_manager = Wlt::CredsManager.new
+
+if options[:username] && options[:password]
+  creds_manager.username = options[:username]
+  creds_manager.password = options[:password]
+else
+  begin
+    creds_manager.load
+  rescue Errno::ENOENT
+    puts "Error: Missing credentials"
+    puts parser
+    exit 1
+  end
+end
+
+if options[:save_credentials]
+  creds_manager.save
+  puts "Saved credentials into $HOME/.wlt/credentials"
+  exit
+end
+
+if options[:file_path]
+  begin
+    translate_args[:text] = File.read(options[:file_path])
+  rescue Errno::ENOENT
+    puts "Cannot open file #{options[:file_path]}"
+    exit 1
+  end
+
+  result = Wlt::Translator.new(creds_manager).translate(translate_args)
+  puts result
+else
+  puts "Error: Missing file"
+  puts parser
+  exit 1
+end
